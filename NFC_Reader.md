@@ -54,3 +54,28 @@ rpi0 ~> "ttyAMA0"
 
 (Another reason to use SPI in future, Pi's only have one UART out and its very useful for debugging etc)
 
+
+### Stuff to work on
+
+We need to work out solutions to the following problems:
+
++ [ ] **Can't get it to recognise the fob-type NFC tags, or NFC cards reliably**
+      
+     This could be down to a multitude of issues :/
+      
+     + We may not be delivering enough power to the NFC reader - we're using a 5v header with a 
+       good power supply though.
+     + Apparently theres some issues when reading over UART - I may test this using a python SPI library.
+     + Another issue - NFC seems like black magic.
+     
+     
++ [ ] **We're maintaining our own PN532 library**
+      
+     We're not NFC or embedded experts, ideally we wouldn't want to do this.
+      Currently we're only maintaining documentation and dependencies.
+      
++ [ ] **We ACK really frequently**
+
+    Do we have to? It can slow the Pi Zero down to a crawl sometimes :(
+    
+    + This could be down to excessive logging - Erlang I/O is pretty slow
