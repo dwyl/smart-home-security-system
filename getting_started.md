@@ -66,6 +66,8 @@ You'll need Elixir and Nerves setup on your computer.
 If you don't have this, please follow the first part of our 
 [Learn Nerves](https://github.com/dwyl/learn-nerves) tutorial.
 
+You'll also need postgres running where your hosting the hub server.
+
 API Development software. Our hub currently does not have a GUI,
 only a REST API. 
 I recommend using [Insomnia Core](https://insomnia.rest/) as there's a 
@@ -99,4 +101,74 @@ https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-
 Use the linked GPIO diagram to work out which pins which. Your development
 board should have pins labelled.
 
+### Setup the Hub server
+Change directory into the hub server folder:
+      
+    cd smart-home-auth-server/
 
+and then setup and run the server
+
+    mix setup
+    mix phx.server
+
+This should be all you have to do.
+
+
+### Setup REST API developent
+
+**This is a pain, we need to fix this**
+
+Visit https://localhost:4000/api/v0/users in your browser. 
+This should trigger an Authentication flow and redirect you to the 
+Dwyl auth site.
+Log in and wait for you to be redirected back.
+
+Look in the URL, you should see a long string of letters after `?jwt=`. 
+Copy this.
+
+Open Insomnia, go to Get User on the sidebar.
+ - Click Auth dropdown
+ - Bearer Token
+ - Paste the token you copied into `token`
+ - Press send, this should apply a global auth cookie
+
+This should only have to be done once.
+
+### Install the Lock firmware
+
+Navigate to the firmware repository, e.g.
+
+    cd ../smart-home-firmware
+
+Change the `:smart_home_firmware, :hub` config value in both
+`config/config.exs` and `config/target.exs` to the IP and port of
+the hub server you setup in the previous steps.
+
+On macOS, you can option-click your network connection to get your IP, and the
+port will default to 4000 on Phoenix.
+
+```elixir
+config :smart_home_firmware,
+  hub: "192.168.0.14:4000"
+```
+
+Then create a firmware with your WiFi credentials and burn it to an SD card. 
+If your not using WiFi, skip these environment vars, 
+it will still connect over Ethernet automatically:
+
+```
+NERVES_NETWORK_SSID=<Wifi Name> NERVES_NETWORK_PSK=<Wifi pass> mix firmware.burn
+```
+
+You could also save these to a `.env` file to avoid writing out every time - 
+I just keep mine in terminal history with `fish`.
+
+Insert the SD card into the Pi and boot it up.
+
+After around a minute, if everything works, you should see a message similar to
+```
+[info] lock-8650 has come online
+```
+
+appear in your hub servers logs. This means everything is configured correctly,
+and the locks can correctly connect to the hub server.
