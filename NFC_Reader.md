@@ -59,14 +59,15 @@ rpi0 ~> "ttyAMA0"
 
 We need to work out solutions to the following problems:
 
-+ [ ] **Can't get it to recognise the fob-type NFC tags, or NFC cards reliably**
++ [X] **Can't get it to recognise the fob-type NFC tags, or NFC cards reliably**
       
      This could be down to a multitude of issues :/
       
      + We may not be delivering enough power to the NFC reader - we're using a 5v header with a 
        good power supply though.
-     + Apparently theres some issues when reading over UART - I may test this using a python SPI library.
+     + ~~Apparently theres some issues when reading over UART - I may test this using a python SPI library.~~
      + Another issue - NFC seems like black magic.
+    
      
      
 + [ ] **We're maintaining our own PN532 library**
@@ -78,4 +79,4 @@ We need to work out solutions to the following problems:
 
     Do we have to? It can slow the Pi Zero down to a crawl sometimes :(
     
-    + This could be down to excessive logging - Erlang I/O is pretty slow
+    + This could be down to excessive logging - Erlang I/O is pretty slow ✅ -- Remove logging to remove performance issues
