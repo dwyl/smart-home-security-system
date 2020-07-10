@@ -57,7 +57,7 @@ Necessary Connectors | You'll need at least 4 female-female wires <sup>1</sup>
 Hub Server | Anything that can run a server, another Raspberry Pi, or I used my laptop for development.
 
 1 : You can also use a breadboard with normal F-to-M jumper wires
-https://imgur.com/a/OQK8zMO
+![NFC-Reader-Wired-using-Breadboard](https://i.imgur.com/g7JqsfO.png)
 
 
 #### Required Software
