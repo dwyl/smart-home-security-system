@@ -87,7 +87,7 @@ https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-
 
         export AUTH_API_KEY=<Your Key> 
 
-3. Wire up the Raspberry Pi to the PN532 board over UART
+3. Wire up the Raspberry Pi to the PN532 board over Universal Asynchronous Receiver/Transmitter (UART) protocol
 
   [GPIO Diagram](https://pinout.xyz/pinout/uart)
 
