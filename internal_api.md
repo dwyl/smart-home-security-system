@@ -66,6 +66,25 @@ The `lock` MUST use this state to configure itself.
 
   Reply: `:ok`
 
++ `access:request`
+
+  Devices should send this event to request User access to the lock.
+
+  ```elixir
+  message: %{
+    uuid: "The current locks UUID"
+    device: "The serial number of the device"
+  }
+  ```
+
+  Reply:
+  ```elixir
+  {:ok %{
+    access: bool
+    user: %User{}
+  }}
+  ```   
+
 ---
 ## Devices
 
