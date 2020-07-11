@@ -1,0 +1,342 @@
+openapi: 3.0.0
+info:
+  title: Dwyl Smart Home Hub API
+  description: >-
+    The external API that is used to interact with the Dwyl smart home system,
+    this does not include internal APIs, these are documented in another file.
+  version: '0.1'
+externalDocs:
+  description: Repository on GitHub
+  url: 'https://github.com/dwyl/smart-home-auth-server'
+servers:
+  - url: 'http://localhost:4000/api/v0'
+tags:
+  - name: User
+    description: Access and manipulate user infomation
+  - name: Devices
+    description: 'Create, pair and delete User''s devices'
+  - name: Locks
+    description: 'Add users to, edit, and delete locks'
+paths:
+  /users:
+    get:
+      tags:
+        - User
+      summary: List all users on the server
+      operationId: getUsers
+      responses:
+        200:
+          description: "Successfully got users"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/smallUser'
+  
+  /users/{userId}:
+    get:
+      tags: 
+        - User
+      summary: "Get detailed infomation on one user"
+      description: "Returns a single user with all known data"
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      
+      responses:
+        200:
+          description: Successfully found user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+                
+    delete:
+      tags:
+        - User
+      summary: "Delete user from the Hub"
+      description: "Delete user from the hub, this does not delete from the remote auth system"
+      parameters: 
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            
+      responses:
+        204:
+          description: "Sucessfully deleted user"
+          
+  /devices:
+    get:
+      tags:
+        - Devices
+      summary: Get all devices
+      description: "Get all devices associated with the currently logged in 
+        users"
+      responses:
+        200:
+          description: Sucessfully got devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/device'
+                  
+    post:
+      tags:
+        - Devices
+      summary: Create a device manually
+      requestBody:
+        description: "The new device"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/device'
+      responses:
+        200:
+          description: "Successfully added device"
+  /devices/{deviceId}:        
+    delete:
+      tags:
+        - Devices
+      summary: "Delete device from the Hub"
+      parameters: 
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            
+      responses:
+        204:
+          description: "Sucessfully deleted device"
+          
+  /devices/pair:
+    post:
+      tags: 
+      - Devices
+      summary: "Start pairing a device"
+      description: "Pair a device to the current user on the specified lock."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lock:
+                  type: string
+                  format: string
+                  description: The serial of the lock
+                name: 
+                  type: string
+                  format: string
+                  description: The name of the new device
+                type:
+                  type: string
+                  enum:
+                    - mobile_phone
+                    - tag
+      responses:
+        200:
+          description: "pairing initiated"
+          
+  /locks:
+    get:
+      tags:
+        - Locks
+      summary: Get all locks
+      responses:
+        200:
+          description: Sucessfully got locks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/lock'
+                  
+    post:
+      tags:
+        - Locks
+      summary: Create a new Lock
+      description: "Create a new lock, useful for testing"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/lock'
+      responses:
+        200:
+          description: "Lock succcessfully created"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/lock'
+                
+  /lock/{lockId}:
+    get:
+      tags: 
+        - Locks
+      summary: Get detailed info on a lock
+      parameters: 
+      - name: lockId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: "Successfully got lock"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fullLock'
+                
+    put:
+      tags: 
+        - Locks
+      summary: update or add user to a lock
+      parameters: 
+      - name: lockId
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/putLock'
+      responses:
+        200:
+          description: "Lock successfully updated"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fullLock'
+      
+                  
+components:
+  schemas:
+    smallUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int
+        email:
+          type: string
+          format: email
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int
+        email:
+          type: string
+          format: email
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/device'
+        locks:
+          type: array
+          items:
+            $ref: '#/components/schemas/smallLock'
+            
+            
+    device:
+      type: object
+      properties:
+        name:
+          type: string
+        
+        type:
+          type: string
+          enum:
+            - nfc_tag
+            - mobile_phone
+            
+        uuid:
+          type: string
+          format: uuid
+          
+    fullLock:
+      type: object
+      properties:
+        mode:
+          type: integer
+          enum: 
+            - 1
+            - 2
+            - 3
+        name:
+          type: string
+        serial:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/smallUser'
+            
+    putLock:
+      type: object
+      properties:
+        mode:
+          type: integer
+          enum: 
+            - 1
+            - 2
+            - 3
+        name:
+          type: string
+        serial:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        users:
+          type: array
+          items:
+            type: string
+            format: email
+            
+    lock:
+      type: object
+      properties:
+        mode:
+          type: integer
+          enum: 
+            - 1
+            - 2
+            - 3
+        name:
+          type: string
+        serial:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        
+          
+    smallLock:
+      type: object
+      properties:
+        serial:
+          type: string
+        
