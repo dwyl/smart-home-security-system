@@ -101,6 +101,12 @@ https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-
 Use the linked GPIO diagram to work out which pins which. Your development
 board should have pins labelled.
 
+Then link the door strike relay up to to the Raspberry Pi by connecting GPIO Pin 4 to `IN1`. 
+You may also need to connect power to your Door servo. This can be done through the same 5v header
+as the PN532 development board is using.
+
+![Diagram](https://user-images.githubusercontent.com/9089056/88680487-7577d880-d0e8-11ea-86ab-4ca5288f3f77.png)
+
 ### Setup the Hub server
 Change directory into the hub server folder:
       
