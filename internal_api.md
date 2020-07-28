@@ -98,7 +98,9 @@ The `lock` MUST use this state to configure itself.
    - `events:<emitter serial>`. A topic just including events from the node.
    
    ```elixir
-   # Event payload, see `Events`
+   %{
+    # Event payload, see `Events`
+   }
    ```
 
 ---
@@ -148,5 +150,24 @@ All lock style devices must connect to this channel to be able to be controlled.
   %{
     from: "Event emitter serial"
     message: # See events
+  }
+  ```
+
+--
+
+## Event
+
+Nodes can emit an `event` at any time when something important happens.
+Events can have an arbitrary payload so your clients should be able
+to ignore any payloads they don't recognise.
+
+### Current payloads
+
++ Access log
+
+  ```elixir
+  %{
+    access: bool
+    user: %User{} | nil
   }
   ```
