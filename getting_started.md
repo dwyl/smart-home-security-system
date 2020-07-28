@@ -158,6 +158,16 @@ config :smart_home_firmware,
   hub: "192.168.0.14:4000"
 ```
 
+We need to install dependencies to install and run Scenic on our host, 
+see [Learn Scenic](https://github.com/dwyl/learn-scenic). 
+On macOS we can just run:
+
+```
+brew install glfw3 glew pkg-config
+```
+
+to install all required dependencies.
+
 Then create a firmware with your WiFi credentials and burn it to an SD card. 
 If your not using WiFi, skip these environment vars, 
 it will still connect over Ethernet automatically:
