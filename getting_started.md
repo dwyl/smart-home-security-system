@@ -101,6 +101,12 @@ https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-
 Use the linked GPIO diagram to work out which pins which. Your development
 board should have pins labelled.
 
+Then link the door strike relay up to to the Raspberry Pi by connecting GPIO Pin 4 to `IN1`. 
+You may also need to connect power to your Door servo. This can be done through the same 5v header
+as the PN532 development board is using.
+
+![Diagram](https://user-images.githubusercontent.com/9089056/88680487-7577d880-d0e8-11ea-86ab-4ca5288f3f77.png)
+
 ### Setup the Hub server
 Change directory into the hub server folder:
       
@@ -151,6 +157,16 @@ port will default to 4000 on Phoenix.
 config :smart_home_firmware,
   hub: "192.168.0.14:4000"
 ```
+
+We need to install dependencies to install and run Scenic on our host, 
+see [Learn Scenic](https://github.com/dwyl/learn-scenic). 
+On macOS we can just run:
+
+```
+brew install glfw3 glew pkg-config
+```
+
+to install all required dependencies.
 
 Then create a firmware with your WiFi credentials and burn it to an SD card. 
 If your not using WiFi, skip these environment vars, 

@@ -3,6 +3,9 @@
 The smart home system uses an internal Phoenix Channel (Websocket) API to
 communicate in real time with different devices on the network.
 
+This document includes all the required topics and events needed to
+implement the internal API.
+
 ---
 
 ## Hub
@@ -83,7 +86,22 @@ The `lock` MUST use this state to configure itself.
     access: bool
     user: %User{}
   }}
-  ```   
+  ```
+  
++ `event`
+
+  Devices should send `event` events to the hub everytime something important happens,
+  e.g. Door getting unlocked.
+  
+  The hub will broadcast this event on two topic: 
+   - `events`: The global event topic, a subscriber will see all events in the system
+   - `events:<emitter serial>`. A topic just including events from the node.
+   
+   ```elixir
+   %{
+    # Event payload, see `Events`
+   }
+   ```
 
 ---
 ## Devices
@@ -105,6 +123,8 @@ All lock style devices must connect to this channel to be able to be controlled.
 
 + `mode:pair`
 
+  **Modes:** `lock`
+
   On receiving this event, devices must reconfigure themselves into a 
   "pairing" mode. They must also keep track the event payload as this must be
   sent back to the server on complete to identify the pair.
@@ -118,3 +138,36 @@ All lock style devices must connect to this channel to be able to be controlled.
 
   Reply: no
 
++ `event`
+  
+  **Modes:** `display`
+  
+  Nodes can subscribe to an events channel that will send events that the 
+  hub deems relevant to the node. For a display, this is access events on
+  their partner lock.
+  
+  ```elixir
+  %{
+    from: "Event emitter serial"
+    message: # See events
+  }
+  ```
+
+--
+
+## Event
+
+Nodes can emit an `event` at any time when something important happens.
+Events can have an arbitrary payload so your clients should be able
+to ignore any payloads they don't recognise.
+
+### Current payloads
+
++ Access log
+
+  ```elixir
+  %{
+    access: bool
+    user: %User{} | nil
+  }
+  ```
