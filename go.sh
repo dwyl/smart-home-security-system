@@ -1,0 +1,24 @@
+#!/bin/bash
+
+MANAGE_SCRIPT_URL="test"
+
+check_for_python() {
+  if ! command -v python3 >/dev/null
+  then
+    echo "Can't find a Python 3 install, which is needed for the setup script."
+    exit 1
+  else
+    echo "Python3 found, continuing..."
+  fi
+
+}
+
+install() {
+  check_for_python
+  echo "Downloading install manager..."
+  # wget -O manage.py MANAGE_SCRIPT_URL
+  echo "Running installer..."
+  python3 manage.py install
+}
+
+install
