@@ -1,8 +1,10 @@
+#!/usr/bin/python3
 # Management script for dwyl smart home
 
 import argparse
 import subprocess
 import os
+import sys
 
 from contextlib import contextmanager
 
@@ -12,6 +14,24 @@ VERBOSE=False
 # Declare global constants
 HUB_SERVER_REPO="https://github.com/dwyl/smart-home-auth-server.git"
 FIRMWARE_REPO="https://github.com/dwyl/smart-home-firmware.git"
+
+START_MESSAGE="""
+Smart home is now setup for development.
+
+To run the hub server:
+
+    cd smart-home-auth-server
+    mix phx.server
+
+To run the firmware development build:
+    cd smart-home-firmware
+    iex -S mix
+
+If these error, please run:
+    ./manage.py clean
+    ./manage.py --verbose install
+and file and issue with the output.
+"""
 
 # Emulate a shells `cd`
 # https://stackoverflow.com/questions/431684/
@@ -56,8 +76,14 @@ def check_for_api_key():
   else:
     get_api_key()
 
+def gen_token():
+  with cd("./smart-home-auth-server"):
+    proc = subprocess.run(["mix", "smart_home.gen_token"], capture_output=True)
+    print("Your development API Bearer token: \n")
+    print(proc.stdout.decode(sys.stdout.encoding))
+    print("\nSet this as the authorization header in your favourite API development tool.")
+
 def setup():
-  print(os.getcwd())
   # Setup firmware
   with cd("./smart-home-firmware"):
     out("Installing firmware deps...")
@@ -75,21 +101,42 @@ def install():
   download()
   check_for_api_key()
   setup()
+  gen_token()
+
+  print(START_MESSAGE)
+
+# Clean up everything we've installed
+def clean():
+  out("Cleaning up...")
+  run("rm", "-rf", "./smart-home-auth-server")
+  run("rm", "-rf", "./smart-home-firmware")
+  out("OK\n")
 
 
 def main():
   parser = argparse.ArgumentParser(description="Manage Dwyl smart home install")
   parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
   subparsers = parser.add_subparsers(help="Commands")
+  subparsers.default = "help"
 
-  install_parser = subparsers.add_parser("install")
+  install_parser = subparsers.add_parser("install", help="Install the smart home system")
   install_parser.set_defaults(func=install)
+
+  clean_parser = subparsers.add_parser("clean", help="Clean up everything")
+  clean_parser.set_defaults(func=clean)
+
+  gen_token_parser = subparsers.add_parser("gen-token", help="Genereate a JWT token for development")
+  gen_token_parser.set_defaults(func=gen_token)
+
+  if len(sys.argv)==1:
+    parser.print_usage(sys.stderr)
+    sys.exit(1)
+
   args = parser.parse_args()
 
   global VERBOSE
   VERBOSE = args.verbose
 
-  print(args.verbose)
   if args.func:
     args.func()
 
