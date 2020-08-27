@@ -15,6 +15,7 @@ VERBOSE=False
 HUB_SERVER_REPO="https://github.com/dwyl/smart-home-auth-server.git"
 FIRMWARE_REPO="https://github.com/dwyl/smart-home-firmware.git"
 
+# Declare the start message here so we don't clog up the rest of the code
 START_MESSAGE="""
 Smart home is now setup for development.
 
@@ -48,6 +49,7 @@ def cd(newdir):
 def out(line):
   print(line, end="", flush=True)
 
+# Run a command, and display the result based on wether VERBOSE is set or not
 def run(*args):
   return subprocess.run(args, capture_output=not VERBOSE)
 
@@ -61,6 +63,7 @@ def download():
   process = run("git", "clone", FIRMWARE_REPO)
   out("OK\n")
 
+# Prompt user for an auth API key so we can finish setup
 def get_api_key():
   print("AUTH_API_KEY not set!\n")
   print("No Auth API key set, found out how at:")
@@ -69,6 +72,7 @@ def get_api_key():
   print("Please enter your API key once your done to continue setup")
   os.environ["AUTH_API_KEY"] = input(">")
 
+# Check if we have an auth API key set before continuing
 def check_for_api_key():
   if os.environ.get("AUTH_API_KEY", None):
     # API key set
@@ -76,6 +80,7 @@ def check_for_api_key():
   else:
     get_api_key()
 
+# Get and display a local API development token for the user
 def gen_token():
   with cd("./smart-home-auth-server"):
     proc = subprocess.run(["mix", "smart_home.gen_token"], capture_output=True)
@@ -83,6 +88,7 @@ def gen_token():
     print(proc.stdout.decode(sys.stdout.encoding))
     print("\nSet this as the authorization header in your favourite API development tool.")
 
+# Setup deps etc. for firmware
 def setup():
   # Setup firmware
   with cd("./smart-home-firmware"):
@@ -112,7 +118,7 @@ def clean():
   run("rm", "-rf", "./smart-home-firmware")
   out("OK\n")
 
-
+# Declare our command parsers and run the intended function
 def main():
   parser = argparse.ArgumentParser(description="Manage Dwyl smart home install")
   parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
@@ -140,6 +146,6 @@ def main():
   if args.func:
     args.func()
 
-
+# Don't run main if we're called from another script.
 if __name__ == "__main__":
   main()
