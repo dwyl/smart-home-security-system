@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MANAGE_SCRIPT_URL="test"
+MANAGE_SCRIPT_URL="https://raw.githubusercontent.com/dwyl/smart-home-security-system/install/manage.py"
 
 check_for_python() {
   if ! command -v python3 >/dev/null
