@@ -16,7 +16,7 @@ check_for_python() {
 install() {
   check_for_python
   echo "Downloading install manager..."
-  wget -O manage.py $MANAGE_SCRIPT_URL
+  wget -q -O manage.py $MANAGE_SCRIPT_URL
   chmod +x manage.py
   echo "Running installer..."
   python3 manage.py install
