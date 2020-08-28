@@ -58,9 +58,18 @@ def run(*args):
   return subprocess.run(args, capture_output=not VERBOSE)
 
 def write_env(key):
+  lines = []
+  with open(".env", "r+") as f:
+    keys = filter(
+      lambda x: not "AUTH_API_KEY=" in x, 
+      f.readlines()
+    )
+    lines = [x for x in keys]
+  
+  lines.append("AUTH_API_KEY=" + key + "\n")
+  
   with open(".env", "w") as f:
-    contents = "AUTH_API_KEY=" + key + "\n"
-    f.write(contents)
+    f.writelines(lines)
 
 # Dowload required files from github.
 def download():
