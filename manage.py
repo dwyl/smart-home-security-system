@@ -5,6 +5,7 @@ import argparse
 import subprocess
 import os
 import sys
+import shlex
 
 from contextlib import contextmanager
 
@@ -18,6 +19,9 @@ FIRMWARE_REPO="https://github.com/dwyl/smart-home-firmware.git"
 # Declare the start message here so we don't clog up the rest of the code
 START_MESSAGE="""
 Smart home is now setup for development.
+
+To setup your development evironment:
+    source .env
 
 To run the hub server:
 
@@ -53,6 +57,11 @@ def out(line):
 def run(*args):
   return subprocess.run(args, capture_output=not VERBOSE)
 
+def write_env(key):
+  with open(".env", "w") as f:
+    contents = "AUTH_API_KEY=" + key + "\n"
+    f.write(contents)
+
 # Dowload required files from github.
 def download():
   out("Downloading Hub Server...")
@@ -70,15 +79,20 @@ def get_api_key():
   print("https://git.io/JJ6sS")
   print("")
   print("Please enter your API key once your done to continue setup")
-  os.environ["AUTH_API_KEY"] = input(">")
+  key = input(">")
+  os.environ["AUTH_API_KEY"] = key
+
+  return key
 
 # Check if we have an auth API key set before continuing
 def check_for_api_key():
-  if os.environ.get("AUTH_API_KEY", None):
-    # API key set
+  key = os.environ.get("AUTH_API_KEY", None)
+  if key:
     pass
   else:
-    get_api_key()
+    key = get_api_key()
+
+  write_env(key)
 
 # Get and display a local API development token for the user
 def gen_token():
@@ -116,6 +130,7 @@ def clean():
   out("Cleaning up...")
   run("rm", "-rf", "./smart-home-auth-server")
   run("rm", "-rf", "./smart-home-firmware")
+  run("rm", ".env")
   out("OK\n")
 
 # Declare our command parsers and run the intended function
