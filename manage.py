@@ -156,6 +156,12 @@ def check_deps():
   else:
     out("ERROR\n")
 
+  out("Checking for node.js...")
+  if check_software("node --version"):
+    out("OK\n")
+    deps["node"] = True
+  else:
+    out("ERROR")
 
   return deps
 
@@ -163,12 +169,23 @@ def install_deps(brew, missing):
   if not brew:
     must_install_brew()
 
-  
-  out("Installing Elixir...\n")
-  run("brew install elixir")
+  if input("Do you want to install missing dependencies using brew? (y/N)")[0] == "y":
+    out("Attempting to install...\n")
+  else:
+    out("\nPlease ensure dependenices are installed or there could be errors!\n")
+    return # Implicit return seems nicer here...
 
-  out("Installing PostgreSQL...\n")
-  run("brew install postgres")
+  if missing["elixir"]:
+    out("Installing Elixir...\n")
+    run("brew install elixir")
+
+  if missing["psql"]:
+    out("Installing PostgreSQL...\n")
+    run("brew install postgres")
+
+  if missing["node"]:
+    out("Installing node...\n")
+    run("brew install node")
 
 def install_nerves_dependencies():
   if input("Do you want to install build dependencies for nerves? (fwup squashfs coreutils xz pkg-config)? (y/N)")[0] == "y":
