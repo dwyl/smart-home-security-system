@@ -114,6 +114,80 @@ def gen_token():
     print(proc.stdout.decode(sys.stdout.encoding))
     print("\nSet this as the authorization header in your favourite API development tool.")
 
+# Install brew, otherwise exit
+def must_install_brew():
+  if input("Homebrew is needed to install dependencies, install? (y/N)")[0] == "y":
+    run(shlex.split("/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\""))
+  else:
+    exit(1)
+
+def check_software(software):
+  exists = True
+  try:
+    subprocess.run(shlex.split(software), capture_output=True)
+  except FileNotFoundError:
+    exists = False
+  return exists
+
+# Check that necessary dependencies are installed
+def check_deps():
+  deps = {"elixir": False, "brew": False, "psql": False, "node": False}
+  # Check for brew
+  out("Checking for homebrew (to install dependencies)...")
+  if check_software("brew"):
+    out("OK\n")
+    deps["brew"]=True
+  else:
+    out("Error - You may need to install dependencies manually!\n")
+
+  # Check for elixir
+  out("Checking for Elixir...")
+  if check_software("elixir -v"):
+    out("OK!\n")
+    deps["elixir"] = True
+  else:
+    out("ERROR\n")
+
+  # check for postgres
+  out("Checking for PostgreSQL...")
+  if check_software("postgres -V"):
+    out("OK\n")
+    deps["psql"] = True
+  else:
+    out("ERROR\n")
+
+
+  return deps
+
+def install_deps(brew, missing):
+  if not brew:
+    must_install_brew()
+
+  
+  out("Installing Elixir...\n")
+  run(shlex.split("brew install elixir"))
+
+  out("Installing PostgreSQL...\n")
+  run(shlex.split("brew install postgres"))
+
+def pre_install():
+  deps = check_deps()
+  brew = deps["brew"]
+
+  del deps["brew"]
+
+  missing = [ key for key in deps if deps[key] == False ]
+
+  if len(missing) > 0:
+    out("Missing dependencies!\n Would you like to install them now?")
+
+    if input("(y/N)")[0] == "y":
+      install_deps(brew, missing)
+    else:
+      out("Please install: " + " ,".join(missing) + "\n Then continue with download.")
+      exit(1)
+
+
 # Setup deps etc. for firmware
 def setup():
   # Setup firmware
@@ -131,6 +205,7 @@ def setup():
 # Run necessary install functions
 def install():
   download()
+  pre_install()
   check_for_api_key()
   setup()
   gen_token()
