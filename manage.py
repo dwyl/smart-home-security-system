@@ -170,6 +170,13 @@ def install_deps(brew, missing):
   out("Installing PostgreSQL...\n")
   run(shlex.split("brew install postgres"))
 
+def install_nerves_dependencies():
+  if input("Do you want to install build dependencies for nerves? (fwup squashfs coreutils xz pkg-config)? (y/N)")[0] == "y":
+    run(shlex.split("brew install fwup squashfs coreutils xz pkg-config"))
+  else:
+    out("NERVES WILL FAIL TO BUILD WITHOUT DEPS INSTALLED \n")
+    out("https://hexdocs.pm/nerves/installation.html#content\n")
+  
 def pre_install():
   deps = check_deps()
   brew = deps["brew"]
@@ -193,6 +200,7 @@ def setup():
   # Setup firmware
   with cd("./smart-home-firmware"):
     out("Installing firmware deps...")
+    install_nerves_dependencies()
     run("mix", "deps.get")
     out("OK\n")
 
