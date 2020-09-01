@@ -42,20 +42,20 @@ and file and issue with the output.
 # https://stackoverflow.com/questions/431684/
 @contextmanager
 def cd(newdir):
-    prevdir = os.getcwd()
-    os.chdir(os.path.expanduser(newdir))
-    try:
-        yield
-    finally:
-        os.chdir(prevdir)
+  prevdir = os.getcwd()
+  os.chdir(os.path.expanduser(newdir))
+  try:
+      yield
+  finally:
+      os.chdir(prevdir)
 
 # Helper function to allow for same line I/O without repeating ourselves
 def out(line):
   print(line, end="", flush=True)
 
 # Run a command, and display the result based on wether VERBOSE is set or not
-def run(*args):
-  return subprocess.run(args, capture_output=not VERBOSE)
+def run(cmd):
+  return subprocess.run(shlex.split(cmd), capture_output=not VERBOSE)
 
 def write_env(key):
   lines = []
@@ -77,11 +77,11 @@ def write_env(key):
 # Dowload required files from github.
 def download():
   out("Downloading Hub Server...")
-  process = run("git", "clone", HUB_SERVER_REPO)
+  process = run("git clone " + HUB_SERVER_REPO)
   out("OK\n")
 
   out("Downloading firmware...")
-  process = run("git", "clone", FIRMWARE_REPO)
+  process = run("git clone " + FIRMWARE_REPO)
   out("OK\n")
 
 # Prompt user for an auth API key so we can finish setup
@@ -117,7 +117,7 @@ def gen_token():
 # Install brew, otherwise exit
 def must_install_brew():
   if input("Homebrew is needed to install dependencies, install? (y/N)")[0] == "y":
-    run(shlex.split("/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\""))
+    run("/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\"")
   else:
     exit(1)
 
@@ -165,14 +165,14 @@ def install_deps(brew, missing):
 
   
   out("Installing Elixir...\n")
-  run(shlex.split("brew install elixir"))
+  run("brew install elixir")
 
   out("Installing PostgreSQL...\n")
-  run(shlex.split("brew install postgres"))
+  run("brew install postgres")
 
 def install_nerves_dependencies():
   if input("Do you want to install build dependencies for nerves? (fwup squashfs coreutils xz pkg-config)? (y/N)")[0] == "y":
-    run(shlex.split("brew install fwup squashfs coreutils xz pkg-config"))
+    run("brew install fwup squashfs coreutils xz pkg-config")
   else:
     out("NERVES WILL FAIL TO BUILD WITHOUT DEPS INSTALLED \n")
     out("https://hexdocs.pm/nerves/installation.html#content\n")
@@ -201,12 +201,13 @@ def setup():
   with cd("./smart-home-firmware"):
     out("Installing firmware deps...")
     install_nerves_dependencies()
-    run("mix", "deps.get")
+    run("mix archive.install hex nerves_bootstrap")
+    run("mix deps.get")
     out("OK\n")
 
   with cd("./smart-home-auth-server"):
     out("Installing hub server deps...")
-    run("mix", "setup")
+    run("mix setup")
     out("OK\n")
 
 
@@ -223,9 +224,9 @@ def install():
 # Clean up everything we've installed
 def clean():
   out("Cleaning up...")
-  run("rm", "-rf", "./smart-home-auth-server")
-  run("rm", "-rf", "./smart-home-firmware")
-  run("rm", ".env")
+  run("rm -rf ./smart-home-firmware")
+  run("rm -rf ./smart-home-auth-server")
+  run("rm .env")
   out("OK\n")
 
 # Declare our command parsers and run the intended function
