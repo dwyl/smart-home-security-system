@@ -10,7 +10,7 @@ import shlex
 from contextlib import contextmanager
 
 # Global verbose flag to toggle on/off verbose output
-VERBOSE=False
+VERBOSE=True
 
 # Declare global constants
 HUB_SERVER_REPO="https://github.com/dwyl/smart-home-auth-server.git"
@@ -68,7 +68,7 @@ def write_env(key):
       lines = [x for x in keys]
   except FileNotFoundError:
     pass
-  
+
   lines.append("AUTH_API_KEY=" + key + "\n")
   
   with open(".env", "w") as f:
@@ -148,7 +148,6 @@ def clean():
 # Declare our command parsers and run the intended function
 def main():
   parser = argparse.ArgumentParser(description="Manage Dwyl smart home install")
-  parser.add_argument("-v", "--verbose", help="Enable verbose output", action="store_true")
   subparsers = parser.add_subparsers(help="Commands")
   subparsers.default = "help"
 
@@ -167,8 +166,6 @@ def main():
 
   args = parser.parse_args()
 
-  global VERBOSE
-  VERBOSE = args.verbose
 
   if args.func:
     args.func()
