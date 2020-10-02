@@ -78,6 +78,20 @@ https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-
 
 ## Setup
 
+### On macOS? Use our management script
+
+1. Run the following command to download and run the Python3 script
+
+```
+bash <(curl -sL https://git.io/JUIen)
+```
+
+This will download and install dependencies and projects for you. 
+You'll still need to wire up the Pi and setup the firmware as detailed
+below.
+
+### Or follow the step by step guide: 
+
 1. Clone the necessary repositories:
 
         git clone https://github.com/dwyl/smart-home-auth-server
